@@ -28,17 +28,20 @@ class SingleCellCollator:
             "labels": labels
         }
 
-def setup_and_train(train_dataset: Dataset, val_dataset: Dataset, num_classes: int, vocab_size: int, pad_token_id: int = 0):
+def setup_and_train(train_dataset: Dataset, val_dataset: Dataset, num_classes: int, vocab_size: int, pad_token_id: int, config_dict: dict):
     """
     Sets up a lightweight Transformer model and fine-tunes it on the cell-type classification task.
     """
+    model_cfg = config_dict.get('model', {})
+    train_cfg = config_dict.get('training', {})
+    
     config = BertConfig(
         vocab_size=vocab_size,
-        hidden_size=256,
-        num_hidden_layers=4,
-        num_attention_heads=4,
-        intermediate_size=512,
-        max_position_embeddings=8192, # some cells express many genes
+        hidden_size=model_cfg.get('hidden_size', 256),
+        num_hidden_layers=model_cfg.get('num_hidden_layers', 4),
+        num_attention_heads=model_cfg.get('num_attention_heads', 4),
+        intermediate_size=model_cfg.get('intermediate_size', 512),
+        max_position_embeddings=model_cfg.get('max_position_embeddings', 8192),
         num_labels=num_classes,
         output_hidden_states=True
     )
@@ -49,11 +52,11 @@ def setup_and_train(train_dataset: Dataset, val_dataset: Dataset, num_classes: i
     training_args = TrainingArguments(
         output_dir="./results",
         evaluation_strategy="epoch",
-        learning_rate=2e-4,
-        per_device_train_batch_size=8,
-        per_device_eval_batch_size=8,
-        num_train_epochs=3,
-        weight_decay=0.01,
+        learning_rate=train_cfg.get('learning_rate', 2e-4),
+        per_device_train_batch_size=train_cfg.get('per_device_train_batch_size', 8),
+        per_device_eval_batch_size=train_cfg.get('per_device_eval_batch_size', 8),
+        num_train_epochs=train_cfg.get('num_train_epochs', 3),
+        weight_decay=train_cfg.get('weight_decay', 0.01),
         logging_dir='./logs',
         logging_steps=10,
         save_strategy="epoch",

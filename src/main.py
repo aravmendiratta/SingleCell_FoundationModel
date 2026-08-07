@@ -2,27 +2,48 @@ import os
 import matplotlib
 matplotlib.use('Agg') # ensure headless plotting works without issues
 
+import yaml
 from data_loader import download_and_preprocess_pbmc
 from tokenizer import tokenize_anndata_for_geneformer
 from fine_tune import setup_and_train, extract_predictions_and_embeddings
 from evaluate import evaluate_model
 
 def main():
+    with open("../config.yaml", "r") as f:
+        config = yaml.safe_load(f)
+    data_cfg = config.get("data", {})
+    
     os.makedirs("../results", exist_ok=True)
-    os.makedirs("../data", exist_ok=True)
+    os.makedirs(data_cfg.get("data_dir", "../data"), exist_ok=True)
     
     # 1. Load Data
     print("--- Step 1: Loading and Preprocessing Data ---")
-    adata = download_and_preprocess_pbmc(data_dir="../data")
+    adata = download_and_preprocess_pbmc(data_dir=data_cfg.get("data_dir", "../data"))
     
     # 2. Tokenize Data
     print("\n--- Step 2: Tokenizing Data ---")
     hf_dataset, vocab, label2id = tokenize_anndata_for_geneformer(adata)
     
+    # Add MASK token to vocabulary for pre-training
+    vocab["<MASK>"] = max(vocab.values()) + 1
+    vocab_size = max(vocab.values()) + 1
+    
+    # Optional: Pre-Training
+    if data_cfg.get("do_pretrain", True):
+        print("\n--- Step 2.5: Pre-Training Foundation Model ---")
+        from pre_train import setup_and_pretrain
+        setup_and_pretrain(
+            dataset=hf_dataset,
+            vocab_size=vocab_size,
+            pad_token_id=vocab["<PAD>"],
+            mask_token_id=vocab["<MASK>"],
+            config_dict=config
+        )
+    
     # 3. Train-Test Split
     print("\n--- Step 3: Splitting Dataset ---")
-    hf_dataset = hf_dataset.shuffle(seed=42)
-    split = hf_dataset.train_test_split(test_size=0.2)
+    hf_dataset = hf_dataset.shuffle(seed=data_cfg.get("seed", 42))
+    split = hf_dataset.train_test_split(test_size=data_cfg.get("test_size", 0.2))
     train_ds = split["train"]
     val_ds = split["test"]
     print(f"Train size: {len(train_ds)}, Val size: {len(val_ds)}")
@@ -30,13 +51,13 @@ def main():
     # 4. Fine-Tune Model
     print("\n--- Step 4: Fine-Tuning Foundation Model ---")
     num_classes = len(label2id)
-    vocab_size = max(vocab.values()) + 1
     model, trainer = setup_and_train(
         train_dataset=train_ds, 
         val_dataset=val_ds, 
         num_classes=num_classes,
         vocab_size=vocab_size,
-        pad_token_id=vocab["<PAD>"]
+        pad_token_id=vocab["<PAD>"],
+        config_dict=config
     )
     
     # 5. Extract Embeddings & Predict
