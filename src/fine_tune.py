@@ -84,19 +84,22 @@ def extract_predictions_and_embeddings(trainer: Trainer, dataset: Dataset):
     Extracts predictions and mean-pooled hidden states for the given dataset.
     """
     print("Extracting predictions and embeddings...")
-    predictions_output = trainer.predict(dataset)
-    logits = predictions_output.predictions[0] if isinstance(predictions_output.predictions, tuple) else predictions_output.predictions
-    preds = np.argmax(logits, axis=1)
     
     dataloader = trainer.get_test_dataloader(dataset)
     device = trainer.args.device
     
+    all_preds = []
     all_embeddings = []
     trainer.model.eval()
     with torch.no_grad():
         for batch in dataloader:
             inputs = {k: v.to(device) for k, v in batch.items()}
             outputs = trainer.model(**inputs)
+            
+            # Get predictions
+            logits = outputs.logits
+            preds = torch.argmax(logits, dim=-1)
+            all_preds.extend(preds.cpu().numpy())
             
             # Mean pooling over the sequence dimension, ignoring padding
             hidden_states = outputs.hidden_states[-1] # (batch, seq_len, hidden_size)
@@ -107,4 +110,4 @@ def extract_predictions_and_embeddings(trainer: Trainer, dataset: Dataset):
             all_embeddings.append(mean_embeddings.cpu().numpy())
             
     embeddings = np.vstack(all_embeddings)
-    return preds, embeddings
+    return np.array(all_preds), embeddings
