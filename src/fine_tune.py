@@ -51,7 +51,7 @@ def setup_and_train(train_dataset: Dataset, val_dataset: Dataset, num_classes: i
     
     training_args = TrainingArguments(
         output_dir="./results",
-        evaluation_strategy="epoch",
+        eval_strategy="epoch",
         learning_rate=train_cfg.get('learning_rate', 2e-4),
         per_device_train_batch_size=train_cfg.get('per_device_train_batch_size', 8),
         per_device_eval_batch_size=train_cfg.get('per_device_eval_batch_size', 8),
