@@ -33,6 +33,16 @@ def download_and_preprocess_pbmc(data_dir: str = "../data") -> ad.AnnData:
     # Identify highly variable genes
     sc.pp.highly_variable_genes(adata, min_mean=0.0125, max_mean=3, min_disp=0.5)
     
+    # Generate pseudo-labels using Leiden clustering
+    print("Running PCA and Leiden clustering for pseudo-labels...")
+    sc.pp.scale(adata, max_value=10)
+    sc.tl.pca(adata, svd_solver='arpack')
+    sc.pp.neighbors(adata, n_neighbors=10, n_pcs=40)
+    sc.tl.leiden(adata, resolution=0.5, key_added='leiden')
+    
+    # Ensure leiden labels are stored as a categorical for downstream use
+    adata.obs['cell_type'] = adata.obs['leiden']
+    
     # Save the processed dataset
     adata.write(save_path)
     print(f"Saved processed dataset to {save_path}")
