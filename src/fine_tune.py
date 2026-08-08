@@ -73,9 +73,17 @@ def setup_and_train(train_dataset: Dataset, val_dataset: Dataset, num_classes: i
         data_collator=collator
     )
     
-    print("Starting fine-tuning...")
-    trainer.train()
-    trainer.save_model("./results/fine_tuned_sc_model")
+    import os
+    model_dir = "./results/fine_tuned_sc_model"
+    if os.path.exists(os.path.join(model_dir, "config.json")):
+        print(f"Found existing fine-tuned model at {model_dir}, skipping training...")
+        model = BertForSequenceClassification.from_pretrained(model_dir)
+        trainer.model = model
+    else:
+        print("Starting fine-tuning...")
+        trainer.train()
+        trainer.save_model(model_dir)
+        
     print("Model fine-tuning setup complete.")
     return model, trainer
 

@@ -66,11 +66,23 @@ def main():
     
     # 6. Evaluate
     print("\n--- Step 6: Evaluating Results ---")
-    true_labels = val_ds["label"]
+    import numpy as np
+    true_labels = np.array(val_ds["label"])
     
     # Reverse mapping for class names to ensure correct order
     id2label = {v: k for k, v in label2id.items()}
     class_names = [id2label[i] for i in range(num_classes)]
+    
+    # Save the raw data for interactive exploration
+    save_path = "../results/evaluation_data.npz"
+    np.savez(
+        save_path, 
+        embeddings=embeddings, 
+        true_labels=true_labels, 
+        preds=preds, 
+        class_names=np.array(class_names)
+    )
+    print(f"Saved raw evaluation data to {save_path}")
     
     evaluate_model(
         predictions=preds, 
