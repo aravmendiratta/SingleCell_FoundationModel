@@ -1,0 +1,212 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap');
+
+:root {
+  --color-bg: #000000;
+  --color-text: #ffffff;
+  --color-accent: #0055FF; /* Electric Blue */
+  --color-border: #ffffff;
+  --font-sans: 'Inter', sans-serif;
+  --font-mono: 'Space Mono', monospace;
+  --border-width: 3px;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background-color: var(--color-bg);
+  color: var(--color-text);
+  font-family: var(--font-sans);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Typography */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-sans);
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: -0.05em;
+  line-height: 1.1;
+}
+
+h1 { font-size: clamp(3rem, 8vw, 8rem); }
+h2 { font-size: clamp(2rem, 5vw, 5rem); }
+h3 { font-size: clamp(1.5rem, 3vw, 3rem); }
+
+p {
+  font-size: 1.125rem;
+  margin-bottom: 1rem;
+}
+
+.mono {
+  font-family: var(--font-mono);
+  text-transform: uppercase;
+  font-size: 0.875rem;
+  letter-spacing: 0.05em;
+}
+
+/* Layout Blocks */
+.container {
+  max-width: 1400px;
+  margin: 0 auto;
+  border-left: var(--border-width) solid var(--color-border);
+  border-right: var(--border-width) solid var(--color-border);
+}
+
+.section-border {
+  border-bottom: var(--border-width) solid var(--color-border);
+}
+
+.grid-2 {
+  display: grid;
+  grid-template-columns: 1fr;
+}
+
+@media (min-width: 768px) {
+  .grid-2 {
+    grid-template-columns: 1fr 1fr;
+  }
+  .grid-2 > div:first-child {
+    border-right: var(--border-width) solid var(--color-border);
+  }
+}
+
+.p-8 {
+  padding: 2rem;
+}
+
+.p-12 {
+  padding: 3rem;
+}
+
+@media (min-width: 768px) {
+  .p-12 {
+    padding: 6rem;
+  }
+}
+
+/* Specific Components */
+.tag {
+  display: inline-block;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 0.25rem 0.5rem;
+  border: 2px solid var(--color-border);
+  background-color: var(--color-bg);
+  color: var(--color-text);
+  margin-right: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.tag.accent {
+  background-color: var(--color-accent);
+  color: var(--color-bg);
+  border-color: var(--color-accent);
+}
+
+img.brutalist-img {
+  width: 100%;
+  height: auto;
+  display: block;
+  border: var(--border-width) solid var(--color-border);
+  filter: grayscale(100%) contrast(1.2);
+  transition: filter 0.3s ease;
+}
+
+img.brutalist-img:hover {
+  filter: grayscale(0%) contrast(1);
+}
+
+.code-block {
+  font-family: var(--font-mono);
+  background-color: #000000;
+  color: #00ff00; /* Terminal Green */
+  padding: 1.5rem;
+  font-size: 0.875rem;
+  overflow-x: auto;
+  border: var(--border-width) solid var(--color-border);
+}
+
+.table-container {
+  width: 100%;
+  overflow-x: auto;
+  border: var(--border-width) solid var(--color-border);
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: var(--font-mono);
+  font-size: 0.875rem;
+}
+
+th, td {
+  padding: 1rem;
+  border: var(--border-width) solid var(--color-border);
+  text-align: left;
+}
+
+th {
+  background-color: var(--color-text);
+  color: var(--color-bg);
+  text-transform: uppercase;
+}
+
+.marquee-container {
+  overflow: hidden;
+  white-space: nowrap;
+  border-bottom: var(--border-width) solid var(--color-border);
+  border-top: var(--border-width) solid var(--color-border);
+  background-color: var(--color-accent);
+  color: var(--color-bg);
+  padding: 0.5rem 0;
+}
+
+.marquee-content {
+  display: inline-block;
+  animation: marquee 20s linear infinite;
+  font-family: var(--font-mono);
+  font-weight: 700;
+  text-transform: uppercase;
+  font-size: 1rem;
+}
+
+@keyframes marquee {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+.brutalist-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem 2rem;
+  background-color: var(--color-bg);
+  color: var(--color-text);
+  border: var(--border-width) solid var(--color-border);
+  font-family: var(--font-sans);
+  font-weight: 900;
+  font-size: 1.25rem;
+  text-transform: uppercase;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 4px 4px 0px 0px var(--color-border);
+}
+
+.brutalist-button:hover {
+  background-color: var(--color-text);
+  color: var(--color-bg);
+  box-shadow: 8px 8px 0px 0px var(--color-accent);
+  transform: translate(-4px, -4px);
+}
+
+.brutalist-button:active {
+  box-shadow: 0px 0px 0px 0px var(--color-border);
+  transform: translate(4px, 4px);
+}
