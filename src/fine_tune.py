@@ -1,3 +1,4 @@
+import os
 import torch
 import numpy as np
 from transformers import BertConfig, BertForSequenceClassification, Trainer, TrainingArguments
@@ -77,7 +78,6 @@ def setup_and_train(train_dataset: Dataset, val_dataset: Dataset, num_classes: i
         data_collator=collator
     )
     
-    import os
     model_dir = os.path.join(results_dir, "fine_tuned_sc_model")
     if os.path.exists(os.path.join(model_dir, "config.json")):
         print(f"Found existing fine-tuned model at {model_dir}, skipping training...")
