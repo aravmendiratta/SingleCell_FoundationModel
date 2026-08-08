@@ -78,7 +78,7 @@ def setup_and_train(train_dataset: Dataset, val_dataset: Dataset, num_classes: i
     if os.path.exists(os.path.join(model_dir, "config.json")):
         print(f"Found existing fine-tuned model at {model_dir}, skipping training...")
         model = BertForSequenceClassification.from_pretrained(model_dir)
-        trainer.model = model
+        trainer.model = model.to(trainer.args.device)
     else:
         print("Starting fine-tuning...")
         trainer.train()
