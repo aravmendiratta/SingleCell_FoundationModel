@@ -49,15 +49,19 @@ def setup_and_train(train_dataset: Dataset, val_dataset: Dataset, num_classes: i
     print("Initializing Foundation Model for sequence classification...")
     model = BertForSequenceClassification(config)
     
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    results_dir = os.path.join(script_dir, "../results")
+    logs_dir = os.path.join(script_dir, "../logs")
+    
     training_args = TrainingArguments(
-        output_dir="./results",
+        output_dir=results_dir,
         eval_strategy="epoch",
         learning_rate=train_cfg.get('learning_rate', 2e-4),
         per_device_train_batch_size=train_cfg.get('per_device_train_batch_size', 8),
         per_device_eval_batch_size=train_cfg.get('per_device_eval_batch_size', 8),
         num_train_epochs=train_cfg.get('num_train_epochs', 3),
         weight_decay=train_cfg.get('weight_decay', 0.01),
-        logging_dir='./logs',
+        logging_dir=logs_dir,
         logging_steps=10,
         save_strategy="epoch",
         remove_unused_columns=False # Important for custom dataset format
@@ -74,7 +78,7 @@ def setup_and_train(train_dataset: Dataset, val_dataset: Dataset, num_classes: i
     )
     
     import os
-    model_dir = "./results/fine_tuned_sc_model"
+    model_dir = os.path.join(results_dir, "fine_tuned_sc_model")
     if os.path.exists(os.path.join(model_dir, "config.json")):
         print(f"Found existing fine-tuned model at {model_dir}, skipping training...")
         model = BertForSequenceClassification.from_pretrained(model_dir)

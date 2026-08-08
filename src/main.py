@@ -9,16 +9,22 @@ from fine_tune import setup_and_train, extract_predictions_and_embeddings
 from evaluate import evaluate_model
 
 def main():
-    with open("../config.yaml", "r") as f:
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    config_path = os.path.join(script_dir, "../config.yaml")
+    
+    with open(config_path, "r") as f:
         config = yaml.safe_load(f)
     data_cfg = config.get("data", {})
     
-    os.makedirs("../results", exist_ok=True)
-    os.makedirs(data_cfg.get("data_dir", "../data"), exist_ok=True)
+    results_dir = os.path.join(script_dir, "../results")
+    data_dir = os.path.join(script_dir, data_cfg.get("data_dir", "../data"))
+    
+    os.makedirs(results_dir, exist_ok=True)
+    os.makedirs(data_dir, exist_ok=True)
     
     # 1. Load Data
     print("--- Step 1: Loading and Preprocessing Data ---")
-    adata = download_and_preprocess_pbmc(data_dir=data_cfg.get("data_dir", "../data"))
+    adata = download_and_preprocess_pbmc(data_dir=data_dir)
     
     # 2. Tokenize Data
     print("\n--- Step 2: Tokenizing Data ---")
@@ -74,7 +80,7 @@ def main():
     class_names = [id2label[i] for i in range(num_classes)]
     
     # Save the raw data for interactive exploration
-    save_path = "../results/evaluation_data.npz"
+    save_path = os.path.join(results_dir, "evaluation_data.npz")
     np.savez(
         save_path, 
         embeddings=embeddings, 
