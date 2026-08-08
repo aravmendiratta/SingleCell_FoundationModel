@@ -9,12 +9,21 @@ import matplotlib.pyplot as plt
 
 def main():
     script_dir = os.path.dirname(os.path.abspath(__file__))
-    model_dir = os.path.join(script_dir, "../results/fine_tuned_sc_model")
-    data_path = os.path.join(script_dir, "../data/pbmc3k_processed.h5ad")
+    model_dir_1 = os.path.join(script_dir, "../results/fine_tuned_sc_model")
+    model_dir_2 = os.path.join(script_dir, "results/fine_tuned_sc_model") # if main.py was run from src/
     
-    if not os.path.exists(model_dir):
-        print(f"Error: Model directory {model_dir} not found.")
+    if os.path.exists(model_dir_1):
+        model_dir = model_dir_1
+    elif os.path.exists(model_dir_2):
+        model_dir = model_dir_2
+    else:
+        print(f"Error: Model directory not found at either {model_dir_1} or {model_dir_2}.")
+        print("Please re-run 'python src/main.py' to generate the model!")
         return
+        
+    data_path = os.path.join(script_dir, "../data/pbmc3k_processed.h5ad")
+    if not os.path.exists(data_path):
+        data_path = os.path.join(script_dir, "data/pbmc3k_processed.h5ad")
         
     print("Loading fine-tuned model...")
     model = BertForSequenceClassification.from_pretrained(model_dir)
