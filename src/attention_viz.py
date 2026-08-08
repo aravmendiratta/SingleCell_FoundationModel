@@ -62,7 +62,7 @@ def main():
     
     # Prepare input for the model
     input_ids = torch.tensor([cell_data["input_ids"]], dtype=torch.long)
-    attention_mask = torch.tensor([cell_data["attention_mask"]], dtype=torch.long)
+    attention_mask = torch.ones_like(input_ids) # No padding for a single sequence
     
     # Run the model
     with torch.no_grad():
