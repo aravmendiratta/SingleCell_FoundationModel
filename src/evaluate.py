@@ -4,10 +4,12 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 from sklearn.metrics import classification_report, confusion_matrix
 
-def evaluate_model(predictions, true_labels, embeddings, class_names):
+def evaluate_model(predictions, true_labels, embeddings, class_names, save_dir="../results"):
     """
     Evaluates the fine-tuned model's predictions and visualizes the cell embeddings using UMAP.
     """
+    import os
+    os.makedirs(save_dir, exist_ok=True)
     print("Evaluating Model Performance...")
     
     # 1. Classification Metrics
@@ -21,7 +23,7 @@ def evaluate_model(predictions, true_labels, embeddings, class_names):
     plt.title("Confusion Matrix: Cell Type Prediction")
     plt.ylabel('True Label')
     plt.xlabel('Predicted Label')
-    plt.savefig("../results/confusion_matrix.png")
+    plt.savefig(os.path.join(save_dir, "confusion_matrix.png"))
     plt.close()
     
     # 3. UMAP Visualization
@@ -33,10 +35,27 @@ def evaluate_model(predictions, true_labels, embeddings, class_names):
     scatter = plt.scatter(embedding_2d[:, 0], embedding_2d[:, 1], c=true_labels, cmap='Spectral', s=5)
     plt.title("UMAP projection of Fine-Tuned Cell Embeddings")
     plt.colorbar(scatter, ticks=range(len(class_names)), label='Cell Type')
-    plt.savefig("../results/umap_embeddings.png")
+    plt.savefig(os.path.join(save_dir, "umap_embeddings.png"))
     plt.close()
     
     print("Evaluation complete. Plots saved to ../results/")
 
 if __name__ == "__main__":
-    print("Run this script after generating predictions and embeddings from fine_tune.py")
+    import os
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    data_path = os.path.join(script_dir, "../results/evaluation_data.npz")
+    
+    if not os.path.exists(data_path):
+        print(f"Error: Could not find {data_path}. Please run main.py first to generate evaluation data.")
+    else:
+        print(f"Loading data from {data_path}...")
+        data = np.load(data_path)
+        
+        # Call the evaluate function
+        evaluate_model(
+            predictions=data['preds'],
+            true_labels=data['true_labels'],
+            embeddings=data['embeddings'],
+            class_names=list(data['class_names']),
+            save_dir=os.path.join(script_dir, "../results")
+        )
